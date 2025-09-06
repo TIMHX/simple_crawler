@@ -89,16 +89,29 @@ class SimpleCrawler:
     def _get_all_images(self, url, soup):
         images = set()
 
-        # # Extract images from <img> tags
-        # for img_tag in soup.findAll("img", src=True):
-        #     src = img_tag.attrs.get("src")
-        #     if src and src.lower().endswith(self.image_extensions):
-        #         full_url = urljoin(url, src)
-        #         if not any(
-        #             keyword.lower() in full_url.lower()
-        #             for keyword in self.image_blacklist
-        #         ):
-        #             images.add(full_url)
+        # Extract images from <img> tags
+        for img_tag in soup.findAll("img", src=True):
+            src = img_tag.attrs.get("src")
+            if src and src.lower().endswith(self.image_extensions):
+                full_url = urljoin(url, src)
+                if not any(
+                    keyword.lower() in full_url.lower()
+                    for keyword in self.image_blacklist
+                ):
+                    images.add(full_url)
+                    self.logger.debug(f"Found image URL (img src): {full_url}")
+
+        # Extract images from <img> tags with data-src for lazy loading
+        for img_tag in soup.findAll("img", {"data-src": True}):
+            src = img_tag.attrs.get("data-src")
+            if src and src.lower().endswith(self.image_extensions):
+                full_url = urljoin(url, src)
+                if not any(
+                    keyword.lower() in full_url.lower()
+                    for keyword in self.image_blacklist
+                ):
+                    images.add(full_url)
+                    self.logger.debug(f"Found image URL (img data-src): {full_url}")
 
         # Extract images from <meta property="og:image"> tags
         for meta_tag in soup.findAll("meta", property=lambda x: x and "og:image" in x):
@@ -110,8 +123,101 @@ class SimpleCrawler:
                     for keyword in self.image_blacklist
                 ):
                     images.add(full_url)
-                    self.logger.debug(f"Found image URL: {full_url}")
+                    self.logger.debug(f"Found image URL (meta og:image): {full_url}")
         return images
+
+    def _extract_css_background_images(self, url, soup):
+        css_images = set()
+        import re
+
+        url_pattern = re.compile(r'url\([\'"]?(.*?)[\'"]?\)')
+
+        for style_tag in soup.findAll("style"):
+            for match in url_pattern.finditer(style_tag.string or ""):
+                src = match.group(1)
+                if src and src.lower().endswith(self.image_extensions):
+                    full_url = urljoin(url, src)
+                    if not any(
+                        keyword.lower() in full_url.lower()
+                        for keyword in self.image_blacklist
+                    ):
+                        css_images.add(full_url)
+                        self.logger.debug(
+                            f"Found image URL (CSS style tag): {full_url}"
+                        )
+
+        for tag in soup.findAll(attrs={"style": True}):
+            style_attr = tag.attrs.get("style")
+            for match in url_pattern.finditer(style_attr):
+                src = match.group(1)
+                if src and src.lower().endswith(self.image_extensions):
+                    full_url = urljoin(url, src)
+                    if not any(
+                        keyword.lower() in full_url.lower()
+                        for keyword in self.image_blacklist
+                    ):
+                        css_images.add(full_url)
+                        self.logger.debug(
+                            f"Found image URL (CSS inline style): {full_url}"
+                        )
+        return css_images
+
+    def _get_images_from_css_file(self, css_url):
+        css_images = set()
+        try:
+            response = requests.get(css_url, allow_redirects=True, timeout=10)
+            response.raise_for_status()
+            import re
+
+            url_pattern = re.compile(r'url\([\'"]?(.*?)[\'"]?\)')
+            for match in url_pattern.finditer(response.text):
+                src = match.group(1)
+                if src and src.lower().endswith(self.image_extensions):
+                    full_url = urljoin(css_url, src)
+                    if not any(
+                        keyword.lower() in full_url.lower()
+                        for keyword in self.image_blacklist
+                    ):
+                        css_images.add(full_url)
+                        self.logger.debug(f"Found image URL (external CSS): {full_url}")
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Error fetching CSS file {css_url}: {e}")
+        return css_images
+
+    def _get_images_from_css_file(self, css_url):
+        css_images = set()
+        try:
+            response = requests.get(css_url, allow_redirects=True, timeout=10)
+            response.raise_for_status()
+            import re
+
+            url_pattern = re.compile(r'url\([\'"]?(.*?)[\'"]?\)')
+            for match in url_pattern.finditer(response.text):
+                src = match.group(1)
+                if src and src.lower().endswith(self.image_extensions):
+                    full_url = urljoin(css_url, src)
+                    if not any(
+                        keyword.lower() in full_url.lower()
+                        for keyword in self.image_blacklist
+                    ):
+                        css_images.add(full_url)
+                        self.logger.debug(f"Found image URL (external CSS): {full_url}")
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Error fetching CSS file {css_url}: {e}")
+        return css_images
+
+    def _save_html_content(self, url, content):
+        parsed_url = urlparse(url)
+        filename = os.path.join(
+            self.output_folder_name,
+            f"{parsed_url.netloc}{parsed_url.path.replace('/', '_')}.html",
+        )
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(content)
+            self.logger.info(f"Saved HTML content of {url} to {filename}")
+        except Exception as e:
+            self.logger.error(f"Error saving HTML content for {url}: {e}")
 
     def download_specific_images(self, image_urls):
         self.logger.info("Attempting to download specific images:")
@@ -134,9 +240,21 @@ class SimpleCrawler:
                 response.raise_for_status()
                 soup = BeautifulSoup(response.text, "html.parser")
 
+                self._save_html_content(url, response.text)  # Save HTML content
+
                 # Download images
                 images = self._get_all_images(url, soup)
-                for image_url in images:
+                css_images_inline = self._extract_css_background_images(url, soup)
+                all_images = images.union(css_images_inline)
+
+                # Extract images from external CSS files
+                for link_tag in soup.findAll("link", rel="stylesheet", href=True):
+                    css_href = link_tag.attrs.get("href")
+                    if css_href:
+                        css_url = urljoin(url, css_href)
+                        all_images.update(self._get_images_from_css_file(css_url))
+
+                for image_url in all_images:
                     if (
                         self.download_limit is not None
                         and self.downloaded_count >= self.download_limit

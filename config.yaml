@@ -16,5 +16,6 @@ IMAGE_BLACKLIST:
   - "dummy5.jpg"
 OUTPUT_FOLDER_NAME: "downloaded_images"
 START_URLS:
-  - "https://www.huntshowdown.com/news"
-  - "https://www.huntshowdown.com/lore"
+  # - "https://www.huntshowdown.com/news"
+  # - "https://www.huntshowdown.com/lore"
+  - "https://www.huntshowdown.com/game"
