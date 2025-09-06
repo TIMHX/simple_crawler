@@ -72,7 +72,9 @@ This simple web crawler can be used for various purposes, such as:
 *   **Educational Purposes**: Learn about web crawling, HTML parsing, and basic data extraction by modifying and experimenting with the crawler's logic.
 
 ### Example: Crawling Hunt Showdown Website
+
 **Use at your own risk.**
+
 **❌  Don't abuse it**
 
 As an example, the crawler is configured to start from `https://www.huntshowdown.com/`. This allows you to:
