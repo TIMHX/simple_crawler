@@ -78,3 +78,7 @@ As an example, the crawler is configured to start from `https://www.huntshowdown
 *   **Collect Game Art**: Download various in-game screenshots, concept art, and promotional images directly from the official website.
 *   **Monitor Updates**: Periodically run the crawler to see new images added to the site, potentially indicating new game content or events.
 *   **Fan Content Creation**: Gather assets for creating fan-made content, wallpapers, or community discussions, while respecting copyright and terms of service.
+
+Downloaded files:
+<img width="1641" height="879" alt="图片" src="https://github.com/user-attachments/assets/e7a930ca-1350-4234-8490-605cdafa64a6" />
+<img width="1611" height="819" alt="图片" src="https://github.com/user-attachments/assets/262fcadc-f13e-479b-bc1c-3aab78e416c9" />
