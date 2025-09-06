@@ -1,4 +1,4 @@
-DOWNLOAD_LIMIT: 20
+DOWNLOAD_LIMIT: 
 IMAGE_EXTENSIONS: [".png", ".jpg", ".jpeg"]
 IMAGE_BLACKLIST:
   - "socials"
@@ -13,4 +13,8 @@ IMAGE_BLACKLIST:
   - "esrb_mature17"
   - "Base Game"
   - "GFDLC"
+  - "dummy5.jpg"
 OUTPUT_FOLDER_NAME: "downloaded_images"
+START_URLS:
+  - "https://www.huntshowdown.com/news"
+  - "https://www.huntshowdown.com/lore"

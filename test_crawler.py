@@ -1,8 +1,12 @@
+import yaml
 from crawler import SimpleCrawler
 
 if __name__ == "__main__":
-    start_url = "https://www.huntshowdown.com/news/behind-the-storm-technical-design-of-thundershower-in-hunt-showdown"
-    crawler = SimpleCrawler(start_url)
-    crawler.crawl(start_url)
+    with open("config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    start_urls = config.get("START_URLS", ["https://www.huntshowdown.com/"])
+
+    crawler = SimpleCrawler(start_urls)
+    crawler.crawl()
 
     print(f"All images saved to {crawler.output_folder_name}")
