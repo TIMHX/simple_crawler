@@ -9,23 +9,11 @@ This project provides a simple web crawler to download PNG and JPG image files f
     pip install uv
     ```
 
-2.  **Create `pyproject.toml`**: Ensure you have a `pyproject.toml` file in the root directory of the project with the following content:
-    ```toml
-    [project]
-    name = "simple-crawler"
-    version = "0.1.0"
-    dependencies = [
-        "requests",
-        "beautifulsoup4",
-        "PyYAML",
-    ]
-    ```
-
-3.  **Install Dependencies**: Navigate to the project's root directory in your terminal and run:
+2.  **Install Dependencies**: Ensure you have a `pyproject.toml` file in the root directory of the project. Navigate to the project's root directory in your terminal and run:
     ```bash
     uv sync
     ```
-    This will create a virtual environment and install the necessary packages, including `PyYAML`.
+    This will create a virtual environment and install the necessary packages, including `requests`, `beautifulsoup4`, and `PyYAML`.
 
 ## Usage
 
@@ -35,7 +23,7 @@ To run the crawler, execute the `crawler.py` script:
 uv run python crawler.py
 ```
 
-The crawler will start from the `start_url` defined in `crawler.py` (currently `https://www.huntshowdown.com/`) and recursively download image files based on the configured extensions. All downloaded images will be saved into a folder specified in `config.yaml`.
+The crawler will start from the `start_url` defined in [`crawler.py`](crawler.py) and recursively download image files based on the configured extensions. All downloaded images will be saved into a folder specified in [`config.yaml`](config.yaml).
 
 ## Configuration
 
@@ -73,21 +61,6 @@ The `Simple Web Crawler` operates by performing the following steps:
 4.  **Download Limit**: The crawler respects an optional `DOWNLOAD_LIMIT`, stopping once the specified number of images has been downloaded.
 5.  **Recursion**: The process continues recursively, exploring new links until the queue is empty, the download limit is reached, or no new valid URLs are found.
 
-## Usage
-
-To run the crawler, execute the `crawler.py` script:
-
-```bash
-uv run python crawler.py
-```
-
-The `start_url` is defined in `crawler.py`:
-```python
-if __name__ == "__main__":
-    start_url = "https://www.huntshowdown.com/" # Change this to your desired starting URL
-    crawler = SimpleCrawler(start_url)
-    crawler.crawl(start_url)
-```
 
 ## Use Cases
 
