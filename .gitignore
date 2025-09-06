@@ -1,0 +1,19 @@
+downloaded_images/
+.venv/
+
+# Byte-code files
+*.pyc
+__pycache__/
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test reports
+.coverage
+.pytest_cache/
+htmlcov/
