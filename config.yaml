@@ -1,0 +1,16 @@
+DOWNLOAD_LIMIT: 20
+IMAGE_EXTENSIONS: [".png", ".jpg", ".jpeg"]
+IMAGE_BLACKLIST:
+  - "socials"
+  - "usk"
+  - "xbox1"
+  - "pegi"
+  - "award"
+  - "steam"
+  - "ps5"
+  - "ct_store_logo"
+  - "hunt_1896_logo"
+  - "esrb_mature17"
+  - "Base Game"
+  - "GFDLC"
+OUTPUT_FOLDER_NAME: "downloaded_images"
